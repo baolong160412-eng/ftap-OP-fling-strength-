@@ -1,0 +1,37 @@
+-- Super Fling (chỉ người, strength 400, không menu)
+local Workspace = game:GetService("Workspace")
+local Debris = game:GetService("Debris")
+local Camera = Workspace.CurrentCamera
+
+local Strength = 400
+
+Workspace.ChildAdded:Connect(function(child)
+    if child.Name == "GrabParts" then
+        local grabPart = child:FindFirstChild("GrabPart")
+        if not grabPart then return end
+        
+        local weld = grabPart:FindFirstChild("WeldConstraint")
+        if not weld or not weld.Part1 then return end
+        
+        local targetPart = weld.Part1
+        local targetModel = targetPart:FindFirstAncestorOfClass("Model")
+        
+        -- CHỈ NÉM NGƯỜI (kiểm tra có Humanoid)
+        if not targetModel or not targetModel:FindFirstChild("Humanoid") then
+            return
+        end
+        
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Parent = targetPart
+        
+        child:GetPropertyChangedSignal("Parent"):Connect(function()
+            if not child.Parent then
+                bodyVelocity.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                bodyVelocity.Velocity = Camera.CFrame.LookVector * Strength
+                Debris:AddItem(bodyVelocity, 1)
+            end
+        end)
+    end
+end)
+
+print("✅ Ném người với lực 400 (chỉ ném người, bỏ qua đồ vật)")
